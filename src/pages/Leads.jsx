@@ -63,10 +63,12 @@ export default function Leads() {
       .catch(() => {});
   }, [activeWorkspace, listId, navigate]);
 
-  // ── Fetch sectors for ConfigPanel ─────────────────────────────────────────
+  // ── Fetch sectors for ConfigPanel (depends on list use_case) ─────────────
   useEffect(() => {
-    client.get('/config/sectors').then((res) => setSectors(res.data)).catch(() => {});
-  }, []);
+    if (!list) return;
+    const useCase = list.use_case ?? 'erp';
+    client.get(`/config/sectors?useCase=${useCase}`).then((res) => setSectors(res.data)).catch(() => {});
+  }, [list]);
 
   const handleSectorsChange = useCallback(async (updated) => {
     setSectors(updated);
@@ -267,6 +269,7 @@ export default function Leads() {
             disabled={isActive}
             sectors={sectors}
             onSectorsChange={handleSectorsChange}
+            useCase={list?.use_case ?? 'erp'}
           />
         </aside>
 
@@ -322,7 +325,7 @@ export default function Leads() {
               )}
             </div>
 
-            <LeadTable leads={displayLeads} loading={tableLoading && !isActive} />
+            <LeadTable leads={displayLeads} loading={tableLoading && !isActive} useCase={list?.use_case ?? 'erp'} />
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-1">

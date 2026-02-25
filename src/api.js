@@ -2,8 +2,11 @@
  * API client — wraps all backend calls and WebSocket connection.
  */
 
-const BASE = '/api';
-const WS_URL = `ws://${window.location.hostname}:3001`;
+// Use env for backend base URL (default to proxy path for dev)
+const BASE = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL.replace(/\/$/, '')}/api` : '/api';
+const WS_URL = import.meta.env.VITE_BACKEND_URL
+  ? import.meta.env.VITE_BACKEND_URL.replace(/^http/, 'ws').replace(/\/$/, '')
+  : `ws://${window.location.hostname}:3001`;
 
 // ─── REST ─────────────────────────────────────────────────────────────────────
 

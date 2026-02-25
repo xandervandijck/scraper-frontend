@@ -4,6 +4,7 @@ import client from '../api/client.js';
 export default function CreateListModal({ workspaceId, onCreated, onClose }) {
   const [name, setName] = useState('');
   const [targetLeads, setTargetLeads] = useState(100);
+  const [useCase, setUseCase] = useState('erp');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,6 +18,7 @@ export default function CreateListModal({ workspaceId, onCreated, onClose }) {
         workspaceId,
         name: name.trim(),
         targetLeads: Number(targetLeads),
+        use_case: useCase,
       });
       onCreated(data);
     } catch (err) {
@@ -39,6 +41,30 @@ export default function CreateListModal({ workspaceId, onCreated, onClose }) {
                 {error}
               </div>
             )}
+            <div>
+              <label className="label">Use case</label>
+              <div className="flex gap-3">
+                {[['erp', 'ERP Leads'], ['recruitment', 'Recruitment']].map(([val, label]) => (
+                  <label
+                    key={val}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer text-sm transition-colors ${
+                      useCase === val
+                        ? 'bg-blue-900/40 border-blue-600 text-blue-200'
+                        : 'border-gray-700 text-gray-400 hover:border-gray-600'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      className="sr-only"
+                      value={val}
+                      checked={useCase === val}
+                      onChange={() => setUseCase(val)}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </div>
             <div>
               <label className="label">Naam</label>
               <input

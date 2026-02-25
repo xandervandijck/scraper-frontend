@@ -16,7 +16,7 @@ function Toggle({ checked, onChange, disabled }) {
   );
 }
 
-export default function ConfigPanel({ config, onChange, disabled, sectors, onSectorsChange }) {
+export default function ConfigPanel({ config, onChange, disabled, sectors, onSectorsChange, useCase = 'erp' }) {
   const [editingSectors, setEditingSectors] = useState(false);
   const [newSector, setNewSector] = useState({ key: '', label: '', queries: '' });
   const [sectorError, setSectorError] = useState('');
@@ -215,10 +215,10 @@ export default function ConfigPanel({ config, onChange, disabled, sectors, onSec
         </div>
       </div>
 
-      {/* Min ERP score */}
+      {/* Min score */}
       <div>
         <label className="label">
-          Min. ERP Score: <span className="text-white font-semibold">{config.minScore}</span>
+          Min. Score: <span className="text-white font-semibold">{config.minScore}</span>
         </label>
         <input
           type="range" min={0} max={90} step={5}
