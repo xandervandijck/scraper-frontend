@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useWorkspace } from '../context/WorkspaceContext.jsx';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useWorkspace } from "../context/WorkspaceContext.jsx";
 
 export default function WorkspaceSelect() {
   const { user, logout } = useAuth();
-  const { workspaces, fetchWorkspaces, setActiveWorkspace, createWorkspace, loading } = useWorkspace();
+  const {
+    workspaces,
+    fetchWorkspaces,
+    setActiveWorkspace,
+    createWorkspace,
+    loading,
+  } = useWorkspace();
   const navigate = useNavigate();
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchWorkspaces();
@@ -17,20 +23,20 @@ export default function WorkspaceSelect() {
 
   function handleSelect(ws) {
     setActiveWorkspace(ws);
-    navigate('/');
+    navigate("/");
   }
 
   async function handleCreate(e) {
     e.preventDefault();
     if (!newName.trim()) return;
     setCreating(true);
-    setError('');
+    setError("");
     try {
       const ws = await createWorkspace(newName.trim());
       setActiveWorkspace(ws);
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      setError(err.response?.data?.error || 'Aanmaken mislukt');
+      setError(err.response?.data?.error || "Aanmaken mislukt");
     } finally {
       setCreating(false);
     }
@@ -46,21 +52,30 @@ export default function WorkspaceSelect() {
               E
             </div>
             <div>
-              <h1 className="text-base font-bold text-white">ERP Lead Engine</h1>
+              <h1 className="text-base font-bold text-white">SUPER SCRAPER</h1>
               <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
           </div>
-          <button onClick={logout} className="text-xs text-gray-500 hover:text-gray-300">
+          <button
+            onClick={logout}
+            className="text-xs text-gray-500 hover:text-gray-300"
+          >
             Uitloggen
           </button>
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold text-white mb-1">Selecteer werkruimte</h2>
-          <p className="text-sm text-gray-500 mb-5">Kies een werkruimte om verder te gaan</p>
+          <h2 className="text-lg font-semibold text-white mb-1">
+            Selecteer werkruimte
+          </h2>
+          <p className="text-sm text-gray-500 mb-5">
+            Kies een werkruimte om verder te gaan
+          </p>
 
           {loading ? (
-            <div className="text-sm text-gray-500 py-4 text-center">Laden...</div>
+            <div className="text-sm text-gray-500 py-4 text-center">
+              Laden...
+            </div>
           ) : (
             <div className="space-y-2 mb-5">
               {workspaces.map((ws) => (
@@ -70,23 +85,32 @@ export default function WorkspaceSelect() {
                   className="w-full text-left flex items-center justify-between p-3 rounded-lg border border-gray-700 hover:border-blue-500 hover:bg-blue-900/10 transition-all group"
                 >
                   <div>
-                    <div className="text-sm font-medium text-white group-hover:text-blue-300">{ws.name}</div>
+                    <div className="text-sm font-medium text-white group-hover:text-blue-300">
+                      {ws.name}
+                    </div>
                     <div className="text-xs text-gray-500 mt-0.5">
-                      Aangemaakt {new Date(ws.created_at).toLocaleDateString('nl-NL')}
+                      Aangemaakt{" "}
+                      {new Date(ws.created_at).toLocaleDateString("nl-NL")}
                     </div>
                   </div>
-                  <span className="text-gray-600 group-hover:text-blue-400 text-lg">›</span>
+                  <span className="text-gray-600 group-hover:text-blue-400 text-lg">
+                    ›
+                  </span>
                 </button>
               ))}
               {workspaces.length === 0 && (
-                <p className="text-sm text-gray-600 text-center py-2">Geen werkruimten gevonden</p>
+                <p className="text-sm text-gray-600 text-center py-2">
+                  Geen werkruimten gevonden
+                </p>
               )}
             </div>
           )}
 
           <div className="divider mb-5" />
 
-          <h3 className="text-sm font-medium text-gray-300 mb-3">Nieuwe werkruimte</h3>
+          <h3 className="text-sm font-medium text-gray-300 mb-3">
+            Nieuwe werkruimte
+          </h3>
 
           {error && (
             <div className="bg-red-900/30 border border-red-700 rounded-lg px-3 py-2 text-xs text-red-300 mb-3">
@@ -101,8 +125,12 @@ export default function WorkspaceSelect() {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
             />
-            <button type="submit" className="btn-primary whitespace-nowrap" disabled={creating || !newName.trim()}>
-              {creating ? '...' : 'Aanmaken'}
+            <button
+              type="submit"
+              className="btn-primary whitespace-nowrap"
+              disabled={creating || !newName.trim()}
+            >
+              {creating ? "..." : "Aanmaken"}
             </button>
           </form>
         </div>

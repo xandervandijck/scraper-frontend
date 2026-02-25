@@ -1,33 +1,33 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
+    setError("");
     if (password !== confirm) {
-      setError('Wachtwoorden komen niet overeen');
+      setError("Wachtwoorden komen niet overeen");
       return;
     }
     if (password.length < 8) {
-      setError('Wachtwoord moet minimaal 8 tekens zijn');
+      setError("Wachtwoord moet minimaal 8 tekens zijn");
       return;
     }
     setLoading(true);
     try {
       await register(email, password);
-      navigate('/workspaces', { replace: true });
+      navigate("/workspaces", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error || 'Registratie mislukt');
+      setError(err.response?.data?.error || "Registratie mislukt");
     } finally {
       setLoading(false);
     }
@@ -39,16 +39,18 @@ export default function Register() {
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8 justify-center">
           <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-lg font-bold text-white">
-            E
+            S
           </div>
           <div>
-            <h1 className="text-base font-bold text-white">ERP Lead Engine</h1>
+            <h1 className="text-base font-bold text-white">SUPER SCRAPER</h1>
             <p className="text-xs text-gray-500">B2B Lead Generation</p>
           </div>
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold text-white mb-6">Account aanmaken</h2>
+          <h2 className="text-lg font-semibold text-white mb-6">
+            Account aanmaken
+          </h2>
 
           {error && (
             <div className="bg-red-900/30 border border-red-700 rounded-lg px-4 py-3 text-sm text-red-300 mb-4">
@@ -96,13 +98,13 @@ export default function Register() {
               className="btn-primary w-full mt-2"
               disabled={loading}
             >
-              {loading ? 'Account aanmaken...' : 'Account aanmaken'}
+              {loading ? "Account aanmaken..." : "Account aanmaken"}
             </button>
           </form>
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          Al een account?{' '}
+          Al een account?{" "}
           <Link to="/login" className="text-blue-400 hover:text-blue-300">
             Inloggen
           </Link>
