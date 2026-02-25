@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useWorkspace } from '../context/WorkspaceContext.jsx';
+import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useWorkspace } from "../context/WorkspaceContext.jsx";
 
 const NAV = [
-  { to: '/', label: 'Dashboard', icon: '▦', end: true },
-  { to: '/lists', label: 'Lijsten', icon: '≡' },
-  { to: '/sessions', label: 'Sessies', icon: '⏱' },
+  { to: "/", label: "Dashboard", icon: "▦", end: true },
+  { to: "/lists", label: "Lijsten", icon: "≡" },
+  { to: "/sessions", label: "Sessies", icon: "⏱" },
 ];
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
-  const { activeWorkspace, workspaces, setActiveWorkspace, fetchWorkspaces } = useWorkspace();
+  const { activeWorkspace, workspaces, setActiveWorkspace, fetchWorkspaces } =
+    useWorkspace();
   const navigate = useNavigate();
   const [showWsMenu, setShowWsMenu] = useState(false);
 
@@ -23,12 +24,12 @@ export default function Sidebar() {
   function selectWorkspace(ws) {
     setActiveWorkspace(ws);
     setShowWsMenu(false);
-    navigate('/');
+    navigate("/");
   }
 
   function handleLogout() {
     logout();
-    navigate('/login');
+    navigate("/login");
   }
 
   return (
@@ -39,8 +40,10 @@ export default function Sidebar() {
           E
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-bold text-white truncate">ERP Lead Engine</div>
-          <div className="text-xs text-gray-500 truncate">B2B Leads</div>
+          <div className="text-sm font-bold text-white truncate">
+            SUPER SCRAPER
+          </div>
+          <div className="text-xs text-gray-500 truncate">B2B Prospects</div>
         </div>
       </div>
 
@@ -53,7 +56,7 @@ export default function Sidebar() {
           <div className="min-w-0">
             <div className="text-xs text-gray-500">Werkruimte</div>
             <div className="text-sm text-gray-200 font-medium truncate">
-              {activeWorkspace?.name || 'Selecteren...'}
+              {activeWorkspace?.name || "Selecteren..."}
             </div>
           </div>
           <span className="text-gray-500 text-xs shrink-0">⇅</span>
@@ -66,16 +69,23 @@ export default function Sidebar() {
                 key={ws.id}
                 onClick={() => selectWorkspace(ws)}
                 className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-700 transition-colors ${
-                  ws.id === activeWorkspace?.id ? 'text-blue-300' : 'text-gray-200'
+                  ws.id === activeWorkspace?.id
+                    ? "text-blue-300"
+                    : "text-gray-200"
                 }`}
               >
                 {ws.name}
-                {ws.id === activeWorkspace?.id && <span className="ml-1 text-blue-400">✓</span>}
+                {ws.id === activeWorkspace?.id && (
+                  <span className="ml-1 text-blue-400">✓</span>
+                )}
               </button>
             ))}
             <div className="border-t border-gray-700">
               <button
-                onClick={() => { setShowWsMenu(false); navigate('/workspaces'); }}
+                onClick={() => {
+                  setShowWsMenu(false);
+                  navigate("/workspaces");
+                }}
                 className="w-full text-left px-3 py-2 text-xs text-gray-500 hover:text-gray-300 hover:bg-gray-700"
               >
                 + Nieuwe werkruimte
@@ -93,7 +103,7 @@ export default function Sidebar() {
             to={to}
             end={end}
             className={({ isActive }) =>
-              isActive ? 'sidebar-link-active' : 'sidebar-link'
+              isActive ? "sidebar-link-active" : "sidebar-link"
             }
           >
             <span className="text-base w-5 text-center">{icon}</span>
