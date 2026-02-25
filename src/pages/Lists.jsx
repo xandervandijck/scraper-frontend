@@ -10,6 +10,7 @@ export default function Lists() {
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const fetchLists = useCallback(() => {
     if (!activeWorkspace) return;
@@ -30,6 +31,16 @@ export default function Lists() {
   function handleCreated(list) {
     setLists((prev) => [list, ...prev]);
     setShowCreate(false);
+  }
+
+  async function handleDelete(list) {
+    if (!window.confirm(`Lijst "${list.name}" en alle ${list.lead_count || 0} leads permanent verwijderen?`)) return;
+    try {
+      await client.delete(`/lists/${list.id}?workspaceId=${activeWorkspace.id}`);
+      setLists((prev) => prev.filter((l) => l.id !== list.id));
+    } catch {
+      alert('Verwijderen mislukt');
+    }
   }
 
   return (
@@ -104,6 +115,14 @@ export default function Lists() {
                   >
                     Scrapen →
                   </Link>
+                  <button
+                    onClick={() => handleDelete(list)}
+                    disabled={deletingId === list.id}
+                    className="btn-ghost btn-sm text-red-500 hover:text-red-400 hover:bg-red-900/20 border-red-900/40 px-2.5"
+                    title="Lijst verwijderen"
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
             );

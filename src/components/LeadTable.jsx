@@ -146,31 +146,50 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                     <tr>
                       <td colSpan={colSpan} className="px-4 py-3 bg-gray-800/40">
                         {isRecruitment ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            {/* Left: vacancy titles */}
                             <div>
-                              <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Job pagina</p>
-                              {ad.jobPageUrl ? (
-                                <a href={ad.jobPageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 truncate block">
-                                  {ad.jobPageUrl}
-                                </a>
+                              <p className="text-gray-500 mb-1.5 font-medium uppercase tracking-wider">Openstaande vacatures</p>
+                              {ad.vacancyTitles?.length ? (
+                                <ul className="space-y-1">
+                                  {ad.vacancyTitles.map((t, ti) => (
+                                    <li key={ti} className="flex items-start gap-1.5 text-gray-300">
+                                      <span className="text-blue-500 mt-0.5 shrink-0">›</span>
+                                      <span>{t}</span>
+                                    </li>
+                                  ))}
+                                </ul>
                               ) : (
-                                <p className="text-gray-600">—</p>
+                                <p className="text-gray-600">Geen titels gevonden</p>
                               )}
                             </div>
-                            <div>
-                              <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">HR email</p>
-                              <p className="text-gray-400">{ad.hrEmail ?? '—'}</p>
-                              <p className="text-gray-500 mt-2 mb-1 font-medium uppercase tracking-wider">ATS platform</p>
-                              <p className="text-gray-400">{ad.atsDetected ?? '—'}</p>
-                            </div>
-                            <div>
-                              <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Groeisignalen</p>
-                              {ad.growthSignals?.length ? (
-                                ad.growthSignals.map((g, gi) => (
-                                  <p key={gi} className="text-gray-400">{g}</p>
-                                ))
-                              ) : (
-                                <p className="text-gray-600">—</p>
+                            {/* Right: meta */}
+                            <div className="space-y-3">
+                              <div>
+                                <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Job pagina</p>
+                                {ad.jobPageUrl ? (
+                                  <a href={ad.jobPageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 truncate block">
+                                    {ad.jobPageUrl}
+                                  </a>
+                                ) : (
+                                  <p className="text-gray-600">—</p>
+                                )}
+                              </div>
+                              <div className="flex gap-6">
+                                <div>
+                                  <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">HR email</p>
+                                  <p className="text-gray-400">{ad.hrEmail ?? '—'}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">ATS</p>
+                                  <p className="text-gray-400">{ad.atsDetected ?? '—'}</p>
+                                </div>
+                              </div>
+                              {ad.growthSignals?.length > 0 && (
+                                <div>
+                                  <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Groeisignalen</p>
+                                  <p className="text-gray-400">{ad.growthSignals.join(', ')}</p>
+                                </div>
                               )}
                             </div>
                           </div>
