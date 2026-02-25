@@ -72,8 +72,11 @@ export default function Leads() {
 
   const handleSectorsChange = useCallback(async (updated) => {
     setSectors(updated);
-    client.post('/config/sectors', updated).catch(() => {});
-  }, []);
+    // Only persist user-editable ERP sectors; recruitment sectors come from the analyzer
+    if ((list?.use_case ?? 'erp') === 'erp') {
+      client.post('/config/sectors', updated).catch(() => {});
+    }
+  }, [list]);
 
   // ── Fetch leads from DB ───────────────────────────────────────────────────
   const fetchLeads = useCallback(() => {

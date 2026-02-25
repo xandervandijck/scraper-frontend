@@ -105,12 +105,14 @@ export default function ConfigPanel({ config, onChange, disabled, sectors, onSec
           <label className="label mb-0">
             Sectoren {allSectors && <span className="text-blue-400 normal-case font-normal">(alle)</span>}
           </label>
-          <button
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-            onClick={() => setEditingSectors((v) => !v)}
-          >
-            {editingSectors ? '✕ sluiten' : '+ bewerken'}
-          </button>
+          {useCase === 'erp' && (
+            <button
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              onClick={() => setEditingSectors((v) => !v)}
+            >
+              {editingSectors ? '✕ sluiten' : '+ bewerken'}
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-1.5">
@@ -131,7 +133,7 @@ export default function ConfigPanel({ config, onChange, disabled, sectors, onSec
                   onChange={() => toggle('sectorKeys', s.key)}
                 />
                 <span className="flex-1">{s.label}</span>
-                {editingSectors && (
+                {editingSectors && useCase === 'erp' && (
                   <button
                     className="text-red-500 hover:text-red-400 ml-1 shrink-0"
                     onClick={() => handleRemoveSector(s.key)}
