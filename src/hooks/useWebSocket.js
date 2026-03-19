@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 
-const WS_URL = 'ws://localhost:3001';
+const WS_URL = import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001';
 const RECONNECT_DELAY = 3000;
 
 /**
