@@ -31,6 +31,9 @@ export default function ExtendListModal({ list, workspaceId, onClose, onDone }) 
   const [maxStalledQueries, setMaxStalledQueries] = useState(50);
   const [searchResultsPerQuery, setSearchResultsPerQuery] = useState(30);
   const [requireVacancySignal, setRequireVacancySignal] = useState(true);
+  const [allowJobBoards, setAllowJobBoards] = useState(true);
+  const [excludeIntermediaries, setExcludeIntermediaries] = useState(true);
+  const [excludedNameKeywords, setExcludedNameKeywords] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sessionId, setSessionId] = useState(null);
@@ -65,6 +68,9 @@ export default function ExtendListModal({ list, workspaceId, onClose, onDone }) 
           maxStalledQueries: Number(maxStalledQueries),
           searchResultsPerQuery: Number(searchResultsPerQuery),
           requireVacancySignal,
+          allowJobBoards,
+          excludeIntermediaries,
+          excludedNameKeywords,
         },
       });
       setSessionId(data.sessionId);
@@ -205,6 +211,44 @@ export default function ExtendListModal({ list, workspaceId, onClose, onDone }) 
               <span className="block text-xs text-gray-500">Slaat alleen bedrijven op met een vacature, vacaturelink of functietitel.</span>
             </span>
           </label>
+
+          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 space-y-4">
+            <p className="text-sm text-gray-200">Bronfilters</p>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={allowJobBoards}
+                onChange={(e) => setAllowJobBoards(e.target.checked)}
+                className="mt-1 rounded border-gray-600 bg-gray-800 text-blue-500"
+              />
+              <span>
+                <span className="block text-sm text-gray-300">Jobboards toestaan</span>
+                <span className="block text-xs text-gray-500">Mag portals gebruiken als daar een email of vacaturelink uit komt.</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={excludeIntermediaries}
+                onChange={(e) => setExcludeIntermediaries(e.target.checked)}
+                className="mt-1 rounded border-gray-600 bg-gray-800 text-blue-500"
+              />
+              <span>
+                <span className="block text-sm text-gray-300">Bemiddelaars uitsluiten</span>
+                <span className="block text-xs text-gray-500">Filtert uitzendbureaus, recruiters, staffing en detacheerders.</span>
+              </span>
+            </label>
+            <div>
+              <label className="label">Namen/keywords uitsluiten</label>
+              <textarea
+                className="input text-xs resize-none"
+                rows={3}
+                placeholder={"Bijv:\nrandstad\ntempo-team\nadecco"}
+                value={excludedNameKeywords}
+                onChange={(e) => setExcludedNameKeywords(e.target.value)}
+              />
+            </div>
+          </div>
 
           <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 space-y-4">
             <label className="flex items-start gap-3 cursor-pointer">

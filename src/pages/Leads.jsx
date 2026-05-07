@@ -24,6 +24,9 @@ const DEFAULT_CONFIG = {
   maxStalledQueries: 50,
   searchResultsPerQuery: 30,
   requireVacancySignal: true,
+  allowJobBoards: true,
+  excludeIntermediaries: true,
+  excludedNameKeywords: '',
 };
 
 const LIMIT = 50;

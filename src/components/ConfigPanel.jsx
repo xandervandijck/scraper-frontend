@@ -114,6 +114,48 @@ export default function ConfigPanel({ config, onChange, disabled, sectors, onSec
         </div>
       </div>
 
+      {/* Source filters */}
+      <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700 space-y-4">
+        <label className="label mb-0">Bronfilters</label>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-300">Jobboards toestaan</p>
+            <p className="text-xs text-gray-500">Mag portals gebruiken als daar een email of vacaturelink uit komt</p>
+          </div>
+          <Toggle
+            checked={config.allowJobBoards !== false}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...config, allowJobBoards: e.target.checked })}
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-300">Bemiddelaars uitsluiten</p>
+            <p className="text-xs text-gray-500">Filtert uitzendbureaus, recruiters, staffing en detacheerders</p>
+          </div>
+          <Toggle
+            checked={config.excludeIntermediaries !== false}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...config, excludeIntermediaries: e.target.checked })}
+          />
+        </div>
+
+        <div>
+          <label className="label">Namen/keywords uitsluiten</label>
+          <textarea
+            className="input text-xs resize-none"
+            rows={3}
+            placeholder={"Bijv:\nrandstad\ntempo-team\nadecco"}
+            value={config.excludedNameKeywords ?? ''}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...config, excludedNameKeywords: e.target.value })}
+          />
+          <p className="text-xs text-gray-500 mt-1">Eén per regel of gescheiden met komma's.</p>
+        </div>
+      </div>
+
       {/* Continue search */}
       <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700 space-y-4">
         <div className="flex items-center justify-between">
