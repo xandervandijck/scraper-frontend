@@ -26,6 +26,11 @@ export default function ExtendListModal({ list, workspaceId, onClose, onDone }) 
   const [minScore, setMinScore] = useState(50);
   const [concurrency, setConcurrency] = useState(5);
   const [emailValidation, setEmailValidation] = useState(true);
+  const [continueUntilTarget, setContinueUntilTarget] = useState(true);
+  const [maxQueries, setMaxQueries] = useState(500);
+  const [maxStalledQueries, setMaxStalledQueries] = useState(50);
+  const [searchResultsPerQuery, setSearchResultsPerQuery] = useState(30);
+  const [requireVacancySignal, setRequireVacancySignal] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sessionId, setSessionId] = useState(null);
@@ -55,6 +60,11 @@ export default function ExtendListModal({ list, workspaceId, onClose, onDone }) 
           minScore: Number(minScore),
           concurrency: Number(concurrency),
           emailValidation,
+          continueUntilTarget,
+          maxQueries: Number(maxQueries),
+          maxStalledQueries: Number(maxStalledQueries),
+          searchResultsPerQuery: Number(searchResultsPerQuery),
+          requireVacancySignal,
         },
       });
       setSessionId(data.sessionId);
@@ -182,6 +192,76 @@ export default function ExtendListModal({ list, workspaceId, onClose, onDone }) 
             />
             <span className="text-sm text-gray-300">E-mail validatie</span>
           </label>
+
+          <label className="flex items-start gap-3 cursor-pointer bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+            <input
+              type="checkbox"
+              checked={requireVacancySignal}
+              onChange={(e) => setRequireVacancySignal(e.target.checked)}
+              className="mt-1 rounded border-gray-600 bg-gray-800 text-blue-500"
+            />
+            <span>
+              <span className="block text-sm text-gray-200">Vacature vereist</span>
+              <span className="block text-xs text-gray-500">Slaat alleen bedrijven op met een vacature, vacaturelink of functietitel.</span>
+            </span>
+          </label>
+
+          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 space-y-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={continueUntilTarget}
+                onChange={(e) => setContinueUntilTarget(e.target.checked)}
+                className="mt-1 rounded border-gray-600 bg-gray-800 text-blue-500"
+              />
+              <span>
+                <span className="block text-sm text-gray-200">Blijven doorzoeken tot doel gehaald is</span>
+                <span className="block text-xs text-gray-500">Voegt automatisch extra zoekvarianten toe als de eerste queries opdrogen.</span>
+              </span>
+            </label>
+
+            <div className={`grid grid-cols-3 gap-4 ${!continueUntilTarget ? 'opacity-50' : ''}`}>
+              <div>
+                <label className="label">Resultaten/query</label>
+                <input
+                  className="input"
+                  type="number"
+                  min={10}
+                  max={80}
+                  step={5}
+                  value={searchResultsPerQuery}
+                  disabled={!continueUntilTarget}
+                  onChange={(e) => setSearchResultsPerQuery(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">Max queries</label>
+                <input
+                  className="input"
+                  type="number"
+                  min={10}
+                  max={5000}
+                  step={50}
+                  value={maxQueries}
+                  disabled={!continueUntilTarget}
+                  onChange={(e) => setMaxQueries(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">0-hit stop</label>
+                <input
+                  className="input"
+                  type="number"
+                  min={5}
+                  max={500}
+                  step={5}
+                  value={maxStalledQueries}
+                  disabled={!continueUntilTarget}
+                  onChange={(e) => setMaxStalledQueries(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="px-6 py-4 border-t border-gray-800 flex gap-3 justify-end">

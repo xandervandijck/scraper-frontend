@@ -11,7 +11,7 @@ export default function ScrapeProgress({ sessionId, workspaceId, onDone }) {
   const [stopped, setStopped] = useState(false);
   const logEndRef = useRef(null);
 
-  useWebSocket(token, {
+  useWebSocket(token, workspaceId, {
     onEvent: (type, payload) => {
       if (type === 'progress' && payload?.workspaceId === workspaceId) {
         setProgress((p) => ({

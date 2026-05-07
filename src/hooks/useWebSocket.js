@@ -1,15 +1,17 @@
 import { useEffect, useRef, useCallback } from 'react';
 
-const WS_URL = import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001';
+const WS_URL = (import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:1337');
 const RECONNECT_DELAY = 3000;
 
 /**
- * useWebSocket — connects to backend WS, authenticates, and dispatches events.
+ * useWebSocket — connects to Strapi WS, authenticates, subscribes to a
+ * workspace room, and dispatches events.
  *
- * @param {string|null} token  JWT token (from AuthContext)
- * @param {object}      handlers  { onEvent(type, payload) }
+ * @param {string|null} token        JWT token (from AuthContext)
+ * @param {string|null} workspaceId  Workspace to subscribe to
+ * @param {object}      handlers     { onEvent(type, payload), onConnect, onDisconnect }
  */
-export function useWebSocket(token, handlers) {
+export function useWebSocket(token, workspaceId, handlers) {
   const wsRef = useRef(null);
   const reconnectRef = useRef(null);
   const mountedRef = useRef(true);
@@ -17,7 +19,7 @@ export function useWebSocket(token, handlers) {
   handlersRef.current = handlers;
 
   const connect = useCallback(() => {
-    if (!token || !mountedRef.current) return;
+    if (!token || !workspaceId || !mountedRef.current) return;
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     const ws = new WebSocket(WS_URL);
@@ -25,13 +27,19 @@ export function useWebSocket(token, handlers) {
 
     ws.onopen = () => {
       ws.send(JSON.stringify({ type: 'auth', token }));
-      handlersRef.current?.onConnect?.();
     };
 
     ws.onmessage = (evt) => {
       try {
         const msg = JSON.parse(evt.data);
-        handlersRef.current?.onEvent?.(msg.type, msg.payload ?? msg);
+        if (msg.type === 'auth_ok') {
+          ws.send(JSON.stringify({ type: 'subscribe', workspaceId }));
+          handlersRef.current?.onConnect?.();
+        } else if (msg.type === 'subscribed') {
+          // ready to receive events
+        } else {
+          handlersRef.current?.onEvent?.(msg.type, msg.payload ?? msg);
+        }
       } catch {
         // ignore malformed messages
       }
@@ -39,15 +47,13 @@ export function useWebSocket(token, handlers) {
 
     ws.onclose = () => {
       handlersRef.current?.onDisconnect?.();
-      if (mountedRef.current && token) {
+      if (mountedRef.current && token && workspaceId) {
         reconnectRef.current = setTimeout(connect, RECONNECT_DELAY);
       }
     };
 
-    ws.onerror = () => {
-      ws.close();
-    };
-  }, [token]);
+    ws.onerror = () => ws.close();
+  }, [token, workspaceId]);
 
   useEffect(() => {
     mountedRef.current = true;

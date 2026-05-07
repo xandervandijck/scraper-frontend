@@ -35,7 +35,7 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
     );
   }
 
-  const isRecruitment = useCase === 'recruitment';
+  const showsVacancies = useCase === 'recruitment' || useCase === 'prospecting';
 
   return (
     <div className="card overflow-hidden p-0">
@@ -45,11 +45,11 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Bedrijf</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
-              {isRecruitment ? (
+              {showsVacancies ? (
                 <>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Vacatures</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Categorieën</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">ATS</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Functietitels</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Vacaturelink</th>
                 </>
               ) : (
                 <>
@@ -57,7 +57,9 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Sector</th>
                 </>
               )}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Land</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                {showsVacancies ? 'Stad' : 'Land'}
+              </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Score</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider"></th>
             </tr>
@@ -73,11 +75,23 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
               const country = lead.country;
               const score = lead.score ?? lead.erp_score ?? lead.erpScore ?? 0;
 
-              // Recruitment-specific fields from analysis_data (may be JSON string or object)
+              const city = lead.city;
+              const asArray = (value) => Array.isArray(value) ? value : [];
               let ad = lead.analysis_data ?? {};
               if (typeof ad === 'string') { try { ad = JSON.parse(ad); } catch { ad = {}; } }
+              const jobTitles = [
+                ...asArray(lead.job_titles),
+                ...asArray(ad.jobTitles),
+                ...asArray(ad.vacancyTitles),
+              ].filter(Boolean);
+              const vacancyLinks = [
+                ...asArray(lead.vacancy_links),
+                ...asArray(ad.vacancyLinks),
+                ad.jobPageUrl,
+              ].filter(Boolean);
+              const vacanciesCount = ad.vacanciesCount ?? jobTitles.length ?? (lead.has_vacancies ? 1 : null);
 
-              const colSpan = isRecruitment ? 7 : 7;
+              const colSpan = 7;
 
               return (
                 <React.Fragment key={lead.id ?? domain ?? i}>
@@ -104,16 +118,20 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                         <span className="text-xs text-gray-600">—</span>
                       )}
                     </td>
-                    {isRecruitment ? (
+                    {showsVacancies ? (
                       <>
                         <td className="px-4 py-2.5 text-xs text-gray-400 whitespace-nowrap">
-                          {ad.vacanciesCount != null ? ad.vacanciesCount : '—'}
+                          {vacanciesCount || lead.has_vacancies ? vacanciesCount || 'Ja' : '—'}
                         </td>
                         <td className="px-4 py-2.5 text-xs text-gray-400 truncate max-w-[120px]">
-                          {ad.jobCategories?.join(', ') || '—'}
+                          {jobTitles.length ? jobTitles.slice(0, 2).join(', ') : '—'}
                         </td>
                         <td className="px-4 py-2.5 text-xs text-gray-400 whitespace-nowrap">
-                          {ad.atsDetected ?? '—'}
+                          {vacancyLinks[0] ? (
+                            <a href={vacancyLinks[0]} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                              open
+                            </a>
+                          ) : '—'}
                         </td>
                       </>
                     ) : (
@@ -127,7 +145,7 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                       </>
                     )}
                     <td className="px-4 py-2.5 text-xs text-gray-400 whitespace-nowrap">
-                      {country ?? '—'}
+                      {showsVacancies ? (city ?? '—') : (country ?? '—')}
                     </td>
                     <td className="px-4 py-2.5">
                       <ScoreBadge score={score} />
@@ -145,14 +163,14 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                   {expandedRow === i && (
                     <tr>
                       <td colSpan={colSpan} className="px-4 py-3 bg-gray-800/40">
-                        {isRecruitment ? (
+                        {showsVacancies ? (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                             {/* Left: vacancy titles */}
                             <div>
                               <p className="text-gray-500 mb-1.5 font-medium uppercase tracking-wider">Openstaande vacatures</p>
-                              {ad.vacancyTitles?.length ? (
+                              {jobTitles.length ? (
                                 <ul className="space-y-1">
-                                  {ad.vacancyTitles.map((t, ti) => (
+                                  {jobTitles.map((t, ti) => (
                                     <li key={ti} className="flex items-start gap-1.5 text-gray-300">
                                       <span className="text-blue-500 mt-0.5 shrink-0">›</span>
                                       <span>{t}</span>
@@ -167,9 +185,9 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                             <div className="space-y-3">
                               <div>
                                 <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Job pagina</p>
-                                {ad.jobPageUrl ? (
-                                  <a href={ad.jobPageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 truncate block">
-                                    {ad.jobPageUrl}
+                                {vacancyLinks.length ? (
+                                  <a href={vacancyLinks[0]} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 truncate block">
+                                    {vacancyLinks[0]}
                                   </a>
                                 ) : (
                                   <p className="text-gray-600">—</p>
@@ -183,6 +201,10 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                                 <div>
                                   <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">ATS</p>
                                   <p className="text-gray-400">{ad.atsDetected ?? '—'}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Stad</p>
+                                  <p className="text-gray-400">{city ?? country ?? '—'}</p>
                                 </div>
                               </div>
                               {ad.growthSignals?.length > 0 && (
@@ -198,6 +220,7 @@ export default function LeadTable({ leads = [], loading = false, useCase = 'erp'
                             <div>
                               <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Adres</p>
                               <p className="text-gray-400">{lead.address ?? '—'}</p>
+                              {city && <p className="text-gray-500 mt-0.5">{city}</p>}
                             </div>
                             <div>
                               <p className="text-gray-500 mb-1 font-medium uppercase tracking-wider">Alle e-mails</p>

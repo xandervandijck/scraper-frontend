@@ -21,7 +21,8 @@ export default function Login() {
       await login(email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error || "Login mislukt");
+      const strapiError = err.response?.data?.error;
+      setError(strapiError?.message || strapiError || "Login mislukt");
     } finally {
       setLoading(false);
     }

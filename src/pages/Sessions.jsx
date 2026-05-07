@@ -38,7 +38,7 @@ export default function Sessions() {
   }, [activeWorkspace, navigate, fetchSessions]);
 
   // Live updates via WebSocket
-  useWebSocket(token, {
+  useWebSocket(token, activeWorkspace?.id, {
     onEvent: (type) => {
       if (type === 'job_done' || type === 'progress') {
         fetchSessions();

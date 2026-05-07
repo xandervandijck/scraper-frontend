@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import client, { BASE_URL } from '../api/client.js';
+import client from '../api/client.js';
 import { useWorkspace } from '../context/WorkspaceContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useWebSocket } from '../hooks/useWebSocket.js';
@@ -19,6 +19,11 @@ const DEFAULT_CONFIG = {
   emailValidation: true,
   deepValidation: false,
   usePuppeteer: true,
+  continueUntilTarget: true,
+  maxQueries: 500,
+  maxStalledQueries: 50,
+  searchResultsPerQuery: 30,
+  requireVacancySignal: true,
 };
 
 const LIMIT = 50;
@@ -68,6 +73,10 @@ export default function Leads() {
     if (!list) return;
     const useCase = list.use_case ?? 'erp';
     client.get(`/config/sectors?useCase=${useCase}`).then((res) => setSectors(res.data)).catch(() => {});
+    // Lower default score threshold for recruitment — small businesses score lower
+    if (useCase === 'recruitment') {
+      setConfig((c) => c.minScore === 50 ? { ...c, minScore: 30 } : c);
+    }
   }, [list]);
 
   const handleSectorsChange = useCallback(async (updated) => {
@@ -77,6 +86,33 @@ export default function Leads() {
       client.post('/config/sectors', updated).catch(() => {});
     }
   }, [list]);
+
+  // ── Restore running job state on mount/reload ────────────────────────────
+  useEffect(() => {
+    if (!activeWorkspace) return;
+    client.get(`/scrape/status?workspaceId=${activeWorkspace.id}`)
+      .then((res) => {
+        if (res.data?.running) {
+          const c = res.data.counters ?? {};
+          setJobStatus('running');
+          setWsStatus({
+            leadsFound: c.leadsFound ?? 0,
+            processedDomains: 0,
+            totalDomains: 0,
+            processedQueries: 0,
+            totalQueries: 0,
+            errorsCount: c.errorsCount ?? 0,
+          });
+          jobStartRef.current = Date.now();
+          clearInterval(timerRef.current);
+          timerRef.current = setInterval(
+            () => setElapsedSeconds(Math.floor((Date.now() - jobStartRef.current) / 1000)),
+            1000,
+          );
+        }
+      })
+      .catch(() => {});
+  }, [activeWorkspace]);
 
   // ── Fetch leads from DB ───────────────────────────────────────────────────
   const fetchLeads = useCallback(() => {
@@ -100,7 +136,7 @@ export default function Leads() {
   useEffect(() => { setPage(1); }, [search, filterScore]);
 
   // ── WebSocket ──────────────────────────────────────────────────────────────
-  useWebSocket(token, {
+  useWebSocket(token, activeWorkspace?.id, {
     onEvent: (type, payload) => {
       switch (type) {
         case 'job_started':
@@ -225,6 +261,37 @@ export default function Leads() {
     }
   }
 
+  async function handleDownload(format) {
+    if (!activeWorkspace || !listId) return;
+    const params = new URLSearchParams({
+      workspaceId: activeWorkspace.id,
+      listId,
+      minScore: filterScore,
+      search,
+    });
+
+    try {
+      const res = await client.get(`/leads/export/${format}?${params}`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([res.data], {
+        type: format === 'xlsx'
+          ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          : 'text/csv;charset=utf-8',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${list?.name ?? 'superscraper_leads'}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err.response?.data?.error ?? `Download ${format.toUpperCase()} mislukt`);
+    }
+  }
+
   // ── Combined leads: live (WS) on top, DB below ────────────────────────────
   // When running, prepend live leads to DB leads (deduped by domain)
   const liveDomainsInDb = new Set(dbLeads.map((l) => l.domain));
@@ -256,8 +323,8 @@ export default function Leads() {
           </div>
         </div>
         <div className="flex gap-2 shrink-0">
-          <button onClick={() => window.open(`${BASE_URL}/download/csv`, '_blank')} className="btn-ghost btn-sm">↓ CSV</button>
-          <button onClick={() => window.open(`${BASE_URL}/download/xlsx`, '_blank')} className="btn-primary btn-sm">↓ Excel</button>
+          <button onClick={() => handleDownload('csv')} className="btn-ghost btn-sm">↓ CSV</button>
+          <button onClick={() => handleDownload('xlsx')} className="btn-primary btn-sm">↓ Excel</button>
         </div>
       </div>
 

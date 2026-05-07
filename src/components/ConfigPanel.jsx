@@ -99,6 +99,80 @@ export default function ConfigPanel({ config, onChange, disabled, sectors, onSec
         )}
       </div>
 
+      {/* Lead quality requirements */}
+      <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700">
+        <div className="flex items-center justify-between">
+          <div>
+            <label className="label mb-0">Vacature vereist</label>
+            <p className="text-xs text-gray-500">Slaat alleen bedrijven op met een vacature, vacaturelink of functietitel</p>
+          </div>
+          <Toggle
+            checked={config.requireVacancySignal !== false}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...config, requireVacancySignal: e.target.checked })}
+          />
+        </div>
+      </div>
+
+      {/* Continue search */}
+      <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <label className="label mb-0">Doorzoeken tot doel</label>
+            <p className="text-xs text-gray-500">Maakt automatisch extra zoekrondes als het doel nog niet gehaald is</p>
+          </div>
+          <Toggle
+            checked={config.continueUntilTarget !== false}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...config, continueUntilTarget: e.target.checked })}
+          />
+        </div>
+
+        <div className={`grid grid-cols-1 gap-3 ${config.continueUntilTarget === false ? 'opacity-50' : ''}`}>
+          <div>
+            <label className="label">
+              Zoekresultaten per query: <span className="text-white font-semibold">{config.searchResultsPerQuery ?? 30}</span>
+            </label>
+            <input
+              type="range" min={10} max={80} step={5}
+              value={config.searchResultsPerQuery ?? 30}
+              onChange={(e) => onChange({ ...config, searchResultsPerQuery: parseInt(e.target.value) })}
+              disabled={disabled || config.continueUntilTarget === false}
+              className="w-full accent-blue-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">Max queries</label>
+              <input
+                type="number"
+                className="input"
+                min={10}
+                max={5000}
+                step={50}
+                value={config.maxQueries ?? 500}
+                onChange={(e) => onChange({ ...config, maxQueries: parseInt(e.target.value) || 500 })}
+                disabled={disabled || config.continueUntilTarget === false}
+              />
+            </div>
+            <div>
+              <label className="label">Stop na 0-hit queries</label>
+              <input
+                type="number"
+                className="input"
+                min={5}
+                max={500}
+                step={5}
+                value={config.maxStalledQueries ?? 50}
+                onChange={(e) => onChange({ ...config, maxStalledQueries: parseInt(e.target.value) || 50 })}
+                disabled={disabled || config.continueUntilTarget === false}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Sectors */}
       <div>
         <div className="flex items-center justify-between mb-2">
