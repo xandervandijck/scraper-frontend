@@ -331,6 +331,28 @@ export default function ConfigPanel({ config, onChange, disabled, sectors, onSec
             );
           })}
         </div>
+
+        {/* Exhaustive mode */}
+        <div className="mt-3 bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="label mb-0">Uitputtende modus</label>
+              <p className="text-xs text-gray-500">
+                Zoekt stad voor stad door alle grote steden in het geselecteerde land — vindt veel meer resultaten maar duurt langer
+              </p>
+            </div>
+            <Toggle
+              checked={config.exhaustiveMode === true}
+              disabled={disabled}
+              onChange={(e) => onChange({ ...config, exhaustiveMode: e.target.checked })}
+            />
+          </div>
+          {config.exhaustiveMode && (
+            <p className="text-xs text-amber-400 mt-2">
+              ⚡ Genereert honderden gerichte zoekopdrachten — ideaal voor een complete landelijke lijst
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Min score */}

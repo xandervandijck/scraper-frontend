@@ -274,9 +274,21 @@ export default function Leads() {
     });
 
     try {
-      const res = await client.get(`/leads/export/${format}?${params}`, {
-        responseType: 'blob',
-      });
+      const res = await client.get(`/leads/export/${format}?${params}`);
+
+      // Backend returns a DO Spaces CDN URL
+      if (res.data?.url) {
+        const a = document.createElement('a');
+        a.href = res.data.url;
+        a.download = `${list?.name ?? 'superscraper_leads'}.${format}`;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      }
+
+      // Fallback: blob response (when upload fails and backend streams directly)
       const blob = new Blob([res.data], {
         type: format === 'xlsx'
           ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
